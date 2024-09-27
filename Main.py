@@ -4,7 +4,7 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
-df = pd.read_csv('imdb_movies.csv')
+df = pd.read_csv('imdb_movies_cleaned.csv')
 
 #print(df.isnull().sum())
 
@@ -16,22 +16,21 @@ df = pd.read_csv('imdb_movies.csv')
 #tratamento de valores nulos
 df.fillna('Unknown', inplace=True)
 
-#print(df.duplicated().sum())
 
 df = df.rename(columns={'names': 'name', 'budget_x': 'budget_mil', 'revenue': 'revenue_mil', 'date_x': 'date', 'country': 'release_country'})
 
-#print(list(df.columns))
-
-df['income_mil'] = (df['revenue_mil'] - df['budget_mil'])/10**6
 
 df['budget_mil'] = df['budget_mil'] / 10**6
 df['revenue_mil'] = df['revenue_mil'] / 10**6
 
+df['income_mil'] = (df['revenue_mil'] - df['budget_mil'])
+
+
 df['date'] = pd.to_datetime(df['date']) 
-
 df['year'] = df['date'].dt.year
-
 df['primary_genre'] = df['genre'].apply(lambda x: x.split(',')[0])
+df = df[df['primary_genre'] != 'Documentary']
+df = df[df['primary_genre'] != 'Unknown']
 
 #print(df[['name', 'primary_genre']])
 
@@ -39,8 +38,12 @@ df['profitable'] = df['income_mil'].apply(lambda x: "Yes" if x > 0 else "No")
 
 df = df.drop(['date', 'genre','overview','crew','orig_title','status'], axis=1)
 
+duplicated_movies = df[df.duplicated(subset=['name', 'year'], keep=False)]
+print(duplicated_movies[['name', 'year', 'budget_mil', 'revenue_mil']])
+print(duplicated_movies.count())
 
-#Remoção de filmes nao lançados sem nota, e outras informações relevantes 
+
+#Remoção de filmes nao lançados, sem nota, e sem outras informações relevantes 
 df = df[df.score != 0]
 df = df[df.revenue_mil != 0]
 df = df[df.budget_mil != 0]
@@ -59,6 +62,7 @@ df_filtered = df[df["primary_genre"] == p_genre]
 
 df_filtered
 col1, col2 = st.columns(2)
+
 
 fig = px.pie(df_filtered, names ='income_tier', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
 col1.plotly_chart(fig)
@@ -79,5 +83,30 @@ fig_decade = px.bar(df_decade_median_filtered, x='decade', y='income_mil',
 
 col2.plotly_chart(fig_decade)
 
+#Grafico notas vs orçamento
+df_decade_score = df_filtered.groupby('decade')['score'].mean().reset_index()
+fig_score_budget = px.scatter(df_filtered, x='budget_mil', y='score',
+                                 labels={'budget_mil': 'Budget (Millions)', 'score': 'Score'},
+                                 title='Score vs. Budget',
+                                 color_discrete_sequence=px.colors.sequential.RdBu)
+st.plotly_chart(fig_score_budget, use_container_width=True)
+
+# Gráfico de Média das Notas por Década
+fig_score = px.line(df_decade_score, x='decade', y='score',
+                    labels={'decade': 'Decade', 'score': 'Average Score'},
+                    title='Average Movie Scores by Decade',
+                    markers=True,
+                    color_discrete_sequence=px.colors.sequential.RdBu)
+
+col1.plotly_chart(fig_score)
+
+df_movies_per_year = df_filtered.groupby('year').size().reset_index(name='count')
+
+fig_movies_per_year = px.line(df_movies_per_year, x='year', y='count',
+                              labels={'year': 'Year', 'count': 'Number of Movies'},
+                              title='Number of Movies Released per Year',
+                              markers=True,
+                              color_discrete_sequence=px.colors.sequential.RdBu)
+col2.plotly_chart(fig_movies_per_year)
 
 
