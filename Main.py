@@ -32,6 +32,7 @@ df['primary_genre'] = df['genre'].apply(lambda x: x.split(',')[0])
 df = df[df['primary_genre'] != 'Documentary']
 df = df[df['primary_genre'] != 'Unknown']
 
+
 #print(df[['name', 'primary_genre']])
 
 df['profitable'] = df['income_mil'].apply(lambda x: "Yes" if x > 0 else "No")
@@ -72,6 +73,9 @@ col1.plotly_chart(fig)
 #col1.plotly_chart(fig)
 
 df_filtered['decade'] = (df['year']//10)*10
+df = df[df['decade'] != '1900']
+df = df[df['decade'] != '1910']
+df = df[df['decade'] != '1920']
 
 df_decade_median_filtered = df_filtered.groupby('decade')['income_mil'].median().reset_index()
 
