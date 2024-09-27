@@ -4,7 +4,7 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
-df = pd.read_csv('imdb_movies_cleaned.csv')
+df = pd.read_csv('imdb_movies.csv')
 
 #print(df.isnull().sum())
 
@@ -73,9 +73,9 @@ col1.plotly_chart(fig)
 #col1.plotly_chart(fig)
 
 df_filtered['decade'] = (df['year']//10)*10
-df = df[df['decade'] != '1900']
-df = df[df['decade'] != '1910']
-df = df[df['decade'] != '1920']
+df_filtered = df_filtered[df_filtered['decade'] != 1900]
+df_filtered = df_filtered[df_filtered['decade'] != 1910]
+df_filtered = df_filtered[df_filtered['decade'] != 1920]
 
 df_decade_median_filtered = df_filtered.groupby('decade')['income_mil'].median().reset_index()
 
