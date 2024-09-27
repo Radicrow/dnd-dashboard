@@ -16,15 +16,13 @@ df = pd.read_csv('imdb_movies.csv')
 #tratamento de valores nulos
 df.fillna('Unknown', inplace=True)
 
-
 df = df.rename(columns={'names': 'name', 'budget_x': 'budget_mil', 'revenue': 'revenue_mil', 'date_x': 'date', 'country': 'release_country'})
-
 
 df['budget_mil'] = df['budget_mil'] / 10**6
 df['revenue_mil'] = df['revenue_mil'] / 10**6
 
+#receita/ box office
 df['income_mil'] = (df['revenue_mil'] - df['budget_mil'])
-
 
 df['date'] = pd.to_datetime(df['date']) 
 df['year'] = df['date'].dt.year
@@ -32,17 +30,10 @@ df['primary_genre'] = df['genre'].apply(lambda x: x.split(',')[0])
 df = df[df['primary_genre'] != 'Documentary']
 df = df[df['primary_genre'] != 'Unknown']
 
-
-#print(df[['name', 'primary_genre']])
-
+#lucrativo ou n
 df['profitable'] = df['income_mil'].apply(lambda x: "Yes" if x > 0 else "No")
 
 df = df.drop(['date', 'genre','overview','crew','orig_title','status'], axis=1)
-
-duplicated_movies = df[df.duplicated(subset=['name', 'year'], keep=False)]
-print(duplicated_movies[['name', 'year', 'budget_mil', 'revenue_mil']])
-print(duplicated_movies.count())
-
 
 #Remoção de filmes nao lançados, sem nota, e sem outras informações relevantes 
 df = df[df.score != 0]
@@ -57,20 +48,14 @@ df['income_tier'] = df['income_mil'].apply(lambda x:
                                              else "High" if 100 < x <= 250 \
                                              else "Very High")
 
-
 p_genre = st.sidebar.selectbox("Genre", df["primary_genre"].unique())
 df_filtered = df[df["primary_genre"] == p_genre]
 
 df_filtered
 col1, col2 = st.columns(2)
 
-
 fig = px.pie(df_filtered, names ='income_tier', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
 col1.plotly_chart(fig)
-
-#df['income_mil'].median()
-#fig = px.bar(df_filtered, x ='', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
-#col1.plotly_chart(fig)
 
 df_filtered['decade'] = (df['year']//10)*10
 df_filtered = df_filtered[df_filtered['decade'] != 1900]
