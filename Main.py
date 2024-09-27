@@ -63,7 +63,21 @@ col1, col2 = st.columns(2)
 fig = px.pie(df_filtered, names ='income_tier', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
 col1.plotly_chart(fig)
 
-df['income_mil'].median()
-fig = px.bar(df_filtered, x ='', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
-col1.plotly_chart(fig)
+#df['income_mil'].median()
+#fig = px.bar(df_filtered, x ='', title='Distribution of Income Tiers', color_discrete_sequence=px.colors.sequential.RdBu)
+#col1.plotly_chart(fig)
+
+df_filtered['decade'] = (df['year']//10)*10
+
+df_decade_median_filtered = df_filtered.groupby('decade')['income_mil'].median().reset_index()
+
+fig_decade = px.bar(df_decade_median_filtered, x='decade', y='income_mil',
+                    labels={'decade': 'Decade', 'income_mil': 'Income Median (Millions)'},
+                    title='Median Income by Decade ',
+                    color_discrete_sequence=px.colors.sequential.RdBu
+                    )
+
+col2.plotly_chart(fig_decade)
+
+
 
