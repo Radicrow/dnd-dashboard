@@ -4,7 +4,7 @@
 
 
 
-Esse projeto utiliza Python, com as bibliotecas Pandas, Plotly Express e Streamlit para criar um dashboard interativo que analisa dados de filmes, incluindo informações sobre receita, orçamento e avaliações ao longo das décadas.
+Esse projeto utiliza Python, com as bibliotecas Pandas, Plotly Express e Streamlit para criar um dashboard interativo que analisa dados de filmes do IMDB, incluindo informações sobre receita, orçamento e avaliações ao longo das décadas.
 ## Features
 - Filtragem por Gênero: Selecione um gênero de filme para ver dados específicos de sua escolha.
 - Distribuição de Renda: Visualização da distribuição dos filmes com base nos seus níveis de lucro.
